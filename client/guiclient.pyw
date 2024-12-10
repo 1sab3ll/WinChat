@@ -9,8 +9,10 @@ def receive_messages(client_socket, text_area):
         try:
             message = client_socket.recv(1024)
             if message:
+                text_area.config(state=tk.NORMAL)  # Enable editing temporarily
                 text_area.insert(tk.END, f"Friend: {message.decode()}\n")
                 text_area.yview(tk.END)  # Auto scroll to the bottom
+                text_area.config(state=tk.DISABLED)  # Disable editing after update
             else:
                 break
         except:
@@ -22,8 +24,13 @@ def send_message(client_socket, message_entry, text_area, username):
     if message:
         formatted_message = f"{username}: {message}"
         client_socket.send(formatted_message.encode())
+        
+        # Update the UI to show the user's own message
+        text_area.config(state=tk.NORMAL)  # Enable editing temporarily
         text_area.insert(tk.END, f"You: {message}\n")
         text_area.yview(tk.END)  # Auto scroll to the bottom
+        text_area.config(state=tk.DISABLED)  # Disable editing after update
+    
     message_entry.delete(0, tk.END)  # Clear the input field
 
 # Function to ask for server details and username
@@ -76,7 +83,7 @@ def start_client(server_address, port, username):
     # Create the scrollable text area for displaying chat messages
     text_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=50, height=20)
     text_area.pack(padx=10, pady=10)
-    text_area.config(state=tk.DISABLED)  # Make it non-editable
+    text_area.config(state=tk.DISABLED)  # Make it non-editable initially
 
     # Create the input field for entering messages
     message_entry = tk.Entry(root, width=40)
